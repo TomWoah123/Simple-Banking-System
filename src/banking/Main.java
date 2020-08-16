@@ -29,23 +29,32 @@ public class Main {
     public static void createAccount(TreeMap<String, String> map) {
         System.out.println("Your card has been created");
         System.out.println("Your card number:");
+        String number = createNumber();
+        while (!luhnAlgorithm(number)) {
+            number = createNumber();
+        }
+        System.out.println(number);
+        System.out.println("Your card PIN");
+        String pin = createPIN();
+        while (map.containsKey(pin)) {
+            pin = createPIN();
+        }
+        System.out.println(pin);
+        map.put(pin, number);
+    }
+
+    private static String createNumber() {
         String number = "400000";
         Random r = new Random();
         for (int i = 0; i < 10; i++) {
             number += r.nextInt(10);
         }
-        System.out.println(number);
-        System.out.println("Your card PIN");
-        int p = r.nextInt(10000);
-        while (map.containsKey(createPIN(p))) {
-            p = r.nextInt(10000);
-        }
-        String pin = createPIN(p);
-        System.out.println(pin);
-        map.put(pin, number);
+        return number;
     }
 
-    private static String createPIN(int p) {
+    private static String createPIN() {
+        Random r = new Random();
+        int p = r.nextInt(10000);
         String pin = "";
         if (p < 10) {
             pin += "000" + p;
@@ -91,5 +100,27 @@ public class Main {
                 System.out.println("Invalid input");
             }
         } while (enter);
+    }
+
+    public static boolean luhnAlgorithm(String number) {
+        int[] digits = new int[number.length()];
+        for (int i = 0; i < number.length(); i++) {
+            digits[i] = Integer.parseInt("" + number.charAt(i));
+        }
+        for (int k = 0; k < digits.length - 1; k++) {
+            if (k % 2 == 0) {
+                digits[k] *= 2;
+            }
+        }
+        for (int j = 0; j < digits.length - 1; j++) {
+            if (digits[j] > 9) {
+                digits[j] -= 9;
+            }
+        }
+        int sum = 0;
+        for (int digit : digits) {
+            sum += digit;
+        }
+        return sum % 10 == 0;
     }
 }
