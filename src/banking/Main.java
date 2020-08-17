@@ -1,4 +1,7 @@
 package banking;
+import org.sqlite.SQLiteDataSource;
+
+import java.sql.*;
 import java.util.*;
 public class Main {
     public static void main(String[] args) {
@@ -18,6 +21,29 @@ public class Main {
             }
             System.out.println();
         } while(enter);
+    }
+
+    public static ResultSet insert(int id, String number, String pin, int balance) {
+        String url = "jdbc:sqlite:C:\\sqlite\\testdb.db";
+        SQLiteDataSource dataSource = new SQLiteDataSource();
+        dataSource.setUrl(url);
+        String sql = "INSERT INTO CARD VALUES(?,?,?,?)";
+        ResultSet rs = null;
+        try (Connection c = dataSource.getConnection()) {
+            try (PreparedStatement s = c.prepareStatement(sql)) {
+                s.setInt(1, id);
+                s.setString(2, number);
+                s.setString( 3, pin);
+                s.setInt(4, balance);
+                s.executeUpdate();
+                rs = s.executeQuery("SELECT * FROM CARD");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return rs;
     }
 
     public static void displayMenu() {
@@ -41,6 +67,9 @@ public class Main {
         }
         System.out.println(pin);
         map.put(pin, number);
+        int id = new Random().nextInt(10000);
+        int balance = new Random().nextInt(100000000);
+        insert(id, number, pin, balance);
     }
 
     private static String createNumber() {
